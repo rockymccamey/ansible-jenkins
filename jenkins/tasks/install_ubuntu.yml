@@ -1,0 +1,27 @@
+- name: Install reuired packages
+  apt: name={{item}} state=installed
+  with_items:
+       - apt-transport-https
+       - ca-certificates
+       - curl
+       - software-properties-common
+
+- name: Add docker gpg
+  shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  args:
+    executable: /bin/bash
+
+- name: Add docker repo
+  shell: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  args:
+    executable: /bin/bash
+
+- name: Install docker
+  apt:
+    name: docker-ce
+    update_cache: yes
+
+- name: Create docker container
+  shell: docker run -u root --rm -d -p 8080:8080 -p 50000:50000 -v jenkins-data:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock jenkinsci/blueocean
+  args:
+    executable: /bin/bash
